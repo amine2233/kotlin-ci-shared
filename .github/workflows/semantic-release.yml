@@ -1,0 +1,71 @@
+name: Semantic Release
+
+# Reusable workflow that runs the project's mise `release` task
+# (semantic-release) to version, changelog, tag, publish the library to
+# GitHub Packages and create a GitHub release from Conventional Commits.
+#
+# Usage (from a consumer repo):
+#
+#   jobs:
+#     release:
+#       permissions:
+#         contents: write
+#         packages: write
+#         issues: write
+#         pull-requests: write
+#       uses: amine2233/kotlin-ci-shared/.github/workflows/semantic-release.yml@main
+#       secrets: inherit
+
+on:
+  workflow_call:
+    inputs:
+      release-task:
+        description: "mise task that runs the release."
+        type: string
+        default: "release"
+      release-args:
+        description: "Extra args appended to the release task (e.g. '--dry-run')."
+        type: string
+        default: ""
+      runner:
+        description: "Runner image for the release job."
+        type: string
+        default: "ubuntu-latest"
+    secrets:
+      GH_TOKEN:
+        description: "Token with `contents: write` + `packages: write`. Defaults to GITHUB_TOKEN via secrets: inherit."
+        required: false
+
+permissions:
+  contents: write
+  packages: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Semantic Release
+    runs-on: ${{ inputs.runner }}
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Release
+        uses: amine2233/kotlin-ci-shared/actions/gradle-run@main
+        with:
+          tasks: ${{ inputs.release-task }} ${{ inputs.release-args }}
+          env: |
+            GITHUB_TOKEN=${{ secrets.GH_TOKEN || secrets.GITHUB_TOKEN }}
+            GH_TOKEN=${{ secrets.GH_TOKEN || secrets.GITHUB_TOKEN }}
+            GITHUB_ACTOR=${{ github.actor }}
+            GIT_AUTHOR_NAME=github-actions[bot]
+            GIT_AUTHOR_EMAIL=41898282+github-actions[bot]@users.noreply.github.com
+            GIT_COMMITTER_NAME=github-actions[bot]
+            GIT_COMMITTER_EMAIL=41898282+github-actions[bot]@users.noreply.github.com

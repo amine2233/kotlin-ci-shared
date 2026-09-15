@@ -1,0 +1,32 @@
+# Example: use the gradle-run composite action directly (instead of the reusable
+# workflows) when you want full control over jobs, steps and runners.
+# Copy into the consumer repo at: .github/workflows/ci.yml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: amine2233/kotlin-ci-shared/actions/gradle-run@main
+        with:
+          tasks: "test"
+
+  lint:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: amine2233/kotlin-ci-shared/actions/gradle-run@main
+        with:
+          tasks: "lint"
+          gradle-cache-read-only: "true"

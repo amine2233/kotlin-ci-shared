@@ -1,0 +1,72 @@
+name: Pages
+
+# Reusable workflow that builds the API documentation via the project's mise
+# `build_documentations` task (Dokka, output: build/dokka/html) and deploys it
+# to GitHub Pages.
+#
+# One-time setup in the consumer repo:
+#   Settings → Pages → Source = "GitHub Actions".
+#
+# Usage (from a consumer repo):
+#
+#   jobs:
+#     docs:
+#       permissions:
+#         contents: read
+#         pages: write
+#         id-token: write
+#       uses: amine2233/kotlin-ci-shared/.github/workflows/pages.yml@main
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        description: "Runner image used to build the documentation."
+        type: string
+        default: "ubuntu-latest"
+      docs-task:
+        description: "mise task that builds the documentation."
+        type: string
+        default: "build_documentations"
+      output-path:
+        description: "Directory the docs task writes into."
+        type: string
+        default: "build/dokka/html"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build Dokka
+    runs-on: ${{ inputs.runner }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build documentation
+        uses: amine2233/kotlin-ci-shared/actions/gradle-run@main
+        with:
+          tasks: ${{ inputs.docs-task }}
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ inputs.output-path }}
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

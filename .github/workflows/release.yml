@@ -1,0 +1,48 @@
+name: Release
+
+# Manually-triggered release for THIS repository (kotlin-ci-shared).
+# Runs the `semantic-release` mise task, which (via .releaserc.json) cuts a
+# version tag + GitHub release, bumps README/docs/examples refs (bumpversion.sh)
+# and moves the short tags N and N.M (post-release.sh) so consumers can pin `@1`/`@1.2`.
+#
+# Trigger from the Actions tab → "Release" → "Run workflow".
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: "Preview the release without publishing (no tag, no commit, no GitHub Release)."
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Semantic Release (manual)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup mise
+        uses: jdx/mise-action@v2
+
+      - name: Semantic release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: mise run semantic-release ${{ inputs.dry-run && '--dry-run' || '' }}

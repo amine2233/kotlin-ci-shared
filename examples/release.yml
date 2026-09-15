@@ -1,0 +1,23 @@
+# Copy into the consumer repo at: .github/workflows/release.yml
+# Requires a mise.toml with `release` and `publish` tasks (see templates/mise.toml)
+# and a .releaserc.json (see templates/.releaserc.json).
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  ci:
+    uses: amine2233/kotlin-ci-shared/.github/workflows/ci.yml@main
+
+  release:
+    needs: ci
+    permissions:
+      contents: write
+      packages: write
+      issues: write
+      pull-requests: write
+    uses: amine2233/kotlin-ci-shared/.github/workflows/semantic-release.yml@main
+    secrets: inherit

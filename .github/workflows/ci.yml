@@ -1,0 +1,100 @@
+name: CI
+
+# Reusable CI workflow for Kotlin/Gradle libraries.
+# The build/test/lint logic lives in the project's mise.toml — this workflow
+# only sets up the runner and calls `mise run <task>` via the gradle-run action.
+#
+# Usage (from a consumer repo):
+#
+#   jobs:
+#     ci:
+#       uses: amine2233/kotlin-ci-shared/.github/workflows/ci.yml@main
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        description: "GitHub-hosted runner image."
+        type: string
+        default: "ubuntu-latest"
+      enable-lint:
+        description: "Run the lint job (pull requests only)."
+        type: boolean
+        default: true
+      lint-task:
+        description: "mise task(s) for the lint job (use ' ::: ' to chain several)."
+        type: string
+        default: "lint"
+      test-task:
+        description: "mise task that runs the tests."
+        type: string
+        default: "test"
+      enable-coverage:
+        description: "Use the coverage task instead of the plain test task."
+        type: boolean
+        default: false
+      coverage-task:
+        description: "mise task that runs tests with coverage."
+        type: string
+        default: "test-coverage"
+      upload-reports:
+        description: "Upload build/reports (tests, kover) as a workflow artifact."
+        type: boolean
+        default: true
+      enable-title-check:
+        description: "Check the pull request title follows Conventional Commits (pull requests only)."
+        type: boolean
+        default: false
+      title-check-task:
+        description: "mise task that checks the pull request title (receives PR_TITLE)."
+        type: string
+        default: "check_merge_request_title"
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    if: ${{ inputs.enable-lint && github.event_name == 'pull_request' }}
+    name: Lint
+    runs-on: ${{ inputs.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: amine2233/kotlin-ci-shared/actions/gradle-run@main
+        with:
+          tasks: ${{ inputs.lint-task }}
+          gradle-cache-read-only: "true"
+
+  title-check:
+    if: ${{ inputs.enable-title-check && github.event_name == 'pull_request' }}
+    name: Pull request title
+    runs-on: ${{ inputs.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: amine2233/kotlin-ci-shared/actions/gradle-run@main
+        with:
+          tasks: ${{ inputs.title-check-task }}
+          gradle-cache-read-only: "true"
+          env: |
+            PR_TITLE=${{ github.event.pull_request.title }}
+
+  test:
+    name: Test
+    runs-on: ${{ inputs.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: amine2233/kotlin-ci-shared/actions/gradle-run@main
+        with:
+          tasks: ${{ inputs.enable-coverage && inputs.coverage-task || inputs.test-task }}
+          gradle-cache-read-only: ${{ github.ref != format('refs/heads/{0}', github.event.repository.default_branch) }}
+      - name: Upload reports
+        if: ${{ always() && inputs.upload-reports }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: |
+            **/build/reports/tests
+            **/build/reports/kover
+          if-no-files-found: ignore
+          retention-days: 7
