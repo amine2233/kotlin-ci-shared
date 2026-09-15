@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: amine2233/kotlin-ci-shared/actions/gradle-run@main
+      - uses: amine2233/kotlin-ci-shared/actions/gradle-run@1.0.0
         with:
           tasks: "test"
 
@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: amine2233/kotlin-ci-shared/actions/gradle-run@main
+      - uses: amine2233/kotlin-ci-shared/actions/gradle-run@1.0.0
         with:
           tasks: "lint"
           gradle-cache-read-only: "true"

@@ -10,7 +10,7 @@ on:
 
 jobs:
   ci:
-    uses: amine2233/kotlin-ci-shared/.github/workflows/ci.yml@main
+    uses: amine2233/kotlin-ci-shared/.github/workflows/ci.yml@1.0.0
 
   release:
     needs: ci
@@ -19,5 +19,5 @@ jobs:
       packages: write
       issues: write
       pull-requests: write
-    uses: amine2233/kotlin-ci-shared/.github/workflows/semantic-release.yml@main
+    uses: amine2233/kotlin-ci-shared/.github/workflows/semantic-release.yml@1.0.0
     secrets: inherit

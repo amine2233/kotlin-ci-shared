@@ -15,4 +15,4 @@ permissions:
 
 jobs:
   docs:
-    uses: amine2233/kotlin-ci-shared/.github/workflows/pages.yml@main
+    uses: amine2233/kotlin-ci-shared/.github/workflows/pages.yml@1.0.0
