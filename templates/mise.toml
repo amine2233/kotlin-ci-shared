@@ -70,11 +70,14 @@ if [[ "${usage_dry_run:-}" == "true" ]]; then
     dry_run_opt="--dry-run"
 fi
 
+# conventionalcommits is pinned to 8: commit-analyzer@13 / release-notes-generator@14
+# bundle conventional-changelog-writer@8, which cannot load the preset shape of 9+/10+
+# (release notes generation fails with an unpinned latest).
 npx --yes \
     -p semantic-release \
     -p @semantic-release/changelog \
     -p @semantic-release/exec \
     -p @semantic-release/git \
-    -p conventional-changelog-conventionalcommits \
+    -p conventional-changelog-conventionalcommits@8 \
     semantic-release $dry_run_opt
 '''

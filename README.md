@@ -207,10 +207,13 @@ The default `GITHUB_TOKEN` (acting as `github-actions[bot]`) **cannot** bypass a
 ## Releasing kotlin-ci-shared itself
 
 This repo versions itself with semantic-release so consumers can pin a stable
-ref. The [`mise.toml`](mise.toml) defines a `semantic-release` task; the manual
-[`Release`](.github/workflows/release.yml) workflow (`workflow_dispatch`) runs it:
+ref. The [`mise.toml`](mise.toml) defines a `semantic-release` task; the
+[`Release`](.github/workflows/release.yml) workflow runs it:
 
 - **Actions → Release → Run workflow** (optionally tick *dry-run* to preview).
+- Or automatically on every push to `main`: set the repository variable
+  `AUTO_RELEASE=true` (Settings → Secrets and variables → Actions → Variables).
+  Same switch for consumers using [`examples/release.yml`](examples/release.yml).
 - semantic-release (config in [`.releaserc.json`](.releaserc.json)) then:
   cuts a `X.Y.Z` tag (no `v` prefix) + GitHub release from Conventional Commits;
   pins the `amine2233/kotlin-ci-shared@<version>` refs in the README,

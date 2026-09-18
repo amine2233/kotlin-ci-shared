@@ -1,11 +1,13 @@
 name: Release
 
-# Manually-triggered release for THIS repository (kotlin-ci-shared).
+# Release for THIS repository (kotlin-ci-shared).
 # Runs the `semantic-release` mise task, which (via .releaserc.json) cuts a
 # version tag + GitHub release, bumps README/docs/examples refs (bumpversion.sh)
 # and moves the short tags N and N.M (post-release.sh) so consumers can pin `@1`/`@1.2`.
 #
-# Trigger from the Actions tab → "Release" → "Run workflow".
+# Manual by default: Actions tab → "Release" → "Run workflow".
+# Automatic on every push to main: set the repository variable AUTO_RELEASE=true
+# (Settings → Secrets and variables → Actions → Variables).
 
 on:
   workflow_dispatch:
@@ -14,6 +16,8 @@ on:
         description: "Preview the release without publishing (no tag, no commit, no GitHub Release)."
         type: boolean
         default: false
+  push:
+    branches: [main]
 
 permissions:
   contents: write
@@ -26,7 +30,8 @@ concurrency:
 
 jobs:
   release:
-    name: Semantic Release (manual)
+    name: Semantic Release
+    if: ${{ github.event_name == 'workflow_dispatch' || vars.AUTO_RELEASE == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout (full history)
