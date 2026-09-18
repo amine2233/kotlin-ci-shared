@@ -60,7 +60,7 @@ and runs one or more tasks. Use it directly when you want your own job layout.
 
 ```yaml
 - uses: actions/checkout@v4
-- uses: amine2233/kotlin-ci-shared/actions/gradle-run@1.0.0
+- uses: amine2233/kotlin-ci-shared/actions/gradle-run@1.0.1
   with:
     tasks: "test"
 ```
@@ -78,7 +78,7 @@ and runs one or more tasks. Use it directly when you want your own job layout.
 ```yaml
 jobs:
   ci:
-    uses: amine2233/kotlin-ci-shared/.github/workflows/ci.yml@1.0.0
+    uses: amine2233/kotlin-ci-shared/.github/workflows/ci.yml@1.0.1
     with:
       enable-coverage: false
 ```
@@ -105,7 +105,7 @@ jobs:
       packages: write
       issues: write
       pull-requests: write
-    uses: amine2233/kotlin-ci-shared/.github/workflows/semantic-release.yml@1.0.0
+    uses: amine2233/kotlin-ci-shared/.github/workflows/semantic-release.yml@1.0.1
     secrets: inherit
 ```
 
@@ -134,7 +134,7 @@ permissions:
   id-token: write
 jobs:
   docs:
-    uses: amine2233/kotlin-ci-shared/.github/workflows/pages.yml@1.0.0
+    uses: amine2233/kotlin-ci-shared/.github/workflows/pages.yml@1.0.1
 ```
 
 | Input | Default | Description |
@@ -181,7 +181,7 @@ The default `GITHUB_TOKEN` (acting as `github-actions[bot]`) **cannot** bypass a
            packages: write
            issues: write
            pull-requests: write
-         uses: amine2233/kotlin-ci-shared/.github/workflows/semantic-release.yml@1.0.0
+         uses: amine2233/kotlin-ci-shared/.github/workflows/semantic-release.yml@1.0.1
          secrets:
            GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
      ```

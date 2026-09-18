@@ -14,7 +14,7 @@ on:
 jobs:
   ci:
     if: ${{ github.event_name == 'workflow_dispatch' || vars.AUTO_RELEASE == 'true' }}
-    uses: amine2233/kotlin-ci-shared/.github/workflows/ci.yml@1.0.0
+    uses: amine2233/kotlin-ci-shared/.github/workflows/ci.yml@1.0.1
 
   release:
     needs: ci
@@ -23,5 +23,5 @@ jobs:
       packages: write
       issues: write
       pull-requests: write
-    uses: amine2233/kotlin-ci-shared/.github/workflows/semantic-release.yml@1.0.0
+    uses: amine2233/kotlin-ci-shared/.github/workflows/semantic-release.yml@1.0.1
     secrets: inherit
